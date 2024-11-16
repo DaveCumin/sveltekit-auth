@@ -51,8 +51,8 @@ export const actions = {
 				verified: false,
 				receiveEmail: true,
 				token: token,
-				createdAt: new Date(),
-				updatedAt: new Date()
+				createdAt: new Date().toString(),
+				updatedAt: new Date().toString()
 			};
 			const newUser = await createUser(user);
 			if (newUser) {
