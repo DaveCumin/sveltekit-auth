@@ -19,7 +19,7 @@ export const lucia = new Lucia(adapter, {
 			secure: !dev
 		}
 	},
-	sessionExpiresIn: new TimeSpan(30, 'd'), // no more active/idle
+	sessionExpiresIn: new TimeSpan(1, 'd'), // 1 day
 	getUserAttributes: (attributes) => {
 		return {
 			userId: attributes.id,

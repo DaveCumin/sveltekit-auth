@@ -1,8 +1,22 @@
+CREATE TABLE `patients` (
+	`id` text PRIMARY KEY NOT NULL,
+	`hashed_nhi` text NOT NULL,
+	`birthweight` real
+);
+--> statement-breakpoint
 CREATE TABLE `sessions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
 	`expires_at` integer NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `user_patients` (
+	`user_id` text NOT NULL,
+	`patient_id` text NOT NULL,
+	PRIMARY KEY(`user_id`, `patient_id`),
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`patient_id`) REFERENCES `patients`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `users` (

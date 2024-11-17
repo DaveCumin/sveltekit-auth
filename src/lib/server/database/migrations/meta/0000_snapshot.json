@@ -1,9 +1,40 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "0f8c7a4b-5030-4df9-9e88-9659dd673481",
+  "id": "858834b4-b3ff-4e4c-9aa9-310f911dac0d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "patients": {
+      "name": "patients",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "hashed_nhi": {
+          "name": "hashed_nhi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "birthweight": {
+          "name": "birthweight",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "sessions": {
       "name": "sessions",
       "columns": {
@@ -46,6 +77,65 @@
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "user_patients": {
+      "name": "user_patients",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "patient_id": {
+          "name": "patient_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_patients_user_id_users_id_fk": {
+          "name": "user_patients_user_id_users_id_fk",
+          "tableFrom": "user_patients",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "user_patients_patient_id_patients_id_fk": {
+          "name": "user_patients_patient_id_patients_id_fk",
+          "tableFrom": "user_patients",
+          "tableTo": "patients",
+          "columnsFrom": [
+            "patient_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "user_patients_user_id_patient_id_pk": {
+          "columns": [
+            "user_id",
+            "patient_id"
+          ],
+          "name": "user_patients_user_id_patient_id_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
