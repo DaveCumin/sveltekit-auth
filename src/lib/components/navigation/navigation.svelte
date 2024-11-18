@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Command from '$lib/components/ui/command';
@@ -34,21 +35,10 @@
 <header class="bg-background sticky top-0 z-40 w-full border-b">
 	<div class="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
 		<div class="flex gap-6 md:gap-10">
-			<a class="flex items-center space-x-2" href="/"
-				><Logo size="24"></Logo><span class="inline-block font-bold">{APP_NAME}</span></a
+			<a class="flex items-center space-x-2" href="/">
+				<img src={`${base}/favicon.png`} height="32" width="32" alt="PCT Sim" />
+				<span class="inline-block font-bold">{APP_NAME}</span></a
 			>
-			<nav class="flex gap-6">
-				<a
-					class="flex items-center text-sm font-medium text-muted-foreground"
-					href="/"
-					class:active={'/' === currentPage}>Home</a
-				>
-				<a
-					class="flex items-center text-sm font-medium text-muted-foreground"
-					href="/dashboard"
-					class:active={'/dashboard' === currentPage}>Protected</a
-				>
-			</nav>
 		</div>
 		<div class="flex flex-1 items-center justify-end space-x-4">
 			<nav class="flex items-center space-x-1">
@@ -73,6 +63,7 @@
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
 				{:else}
+					<Button on:click={signOut}>Sign out</Button>
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger asChild let:builder>
 							<Button variant="ghost" builders={[builder]} class="relative h-8 w-8 rounded-full">
@@ -93,38 +84,33 @@
 								<DropdownMenu.Item on:click={() => goto('/profile')}>
 									<UserRound class="mr-2 h-4 w-4" />
 									Profile
-									<DropdownMenu.Shortcut>⇧⌘P</DropdownMenu.Shortcut>
+									<DropdownMenu.Shortcut></DropdownMenu.Shortcut>
 								</DropdownMenu.Item>
 							</DropdownMenu.Group>
-
-							<DropdownMenu.Sub>
-								<DropdownMenu.SubTrigger>
-									<Sun
-										class="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-									/>
-									<Moon
-										class="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-									/>
-									Appearance
-								</DropdownMenu.SubTrigger>
-								<DropdownMenu.SubContent>
-									<DropdownMenu.Item on:click={() => setMode('light')}
-										><Sun class="mr-2 h-4 w-4" />Light
-									</DropdownMenu.Item>
-									<DropdownMenu.Item on:click={() => setMode('dark')}
-										><Moon class="mr-2 h-4 w-4" />Dark
-									</DropdownMenu.Item>
-									<DropdownMenu.Item on:click={() => setMode('system')}
-										><SunMoon class="mr-2 h-4 w-4" />System
-									</DropdownMenu.Item>
-								</DropdownMenu.SubContent>
-							</DropdownMenu.Sub>
 							<DropdownMenu.Separator />
 							<DropdownMenu.Item on:click={signOut}>
 								<LogOut class="mr-2 h-4 w-4" />
 								Sign out
-								<DropdownMenu.Shortcut>⇧⌘Q</DropdownMenu.Shortcut>
+								<DropdownMenu.Shortcut></DropdownMenu.Shortcut>
 							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger asChild let:builder>
+							<Button builders={[builder]} variant="ghost" size="icon">
+								<Sun
+									class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+								/>
+								<Moon
+									class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+								/>
+								<span class="sr-only">Toggle theme</span>
+							</Button>
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="end">
+							<DropdownMenu.Item on:click={() => setMode('light')}>Light</DropdownMenu.Item>
+							<DropdownMenu.Item on:click={() => setMode('dark')}>Dark</DropdownMenu.Item>
+							<DropdownMenu.Item on:click={() => resetMode()}>System</DropdownMenu.Item>
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
 				{/if}

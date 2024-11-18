@@ -1,6 +1,8 @@
 <script>
 	import Model from '$lib/model/Model.svelte';
 	export let data;
+
+	let modelProps = { birthweight: 5, gestationalAge_weeks: 40 };
 </script>
 
 <section class="container grid items-center gap-6">
@@ -15,4 +17,4 @@
 	</div>
 </section>
 
-<Model />
+<Model {...modelProps} />

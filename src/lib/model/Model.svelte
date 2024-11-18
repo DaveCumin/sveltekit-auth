@@ -36,10 +36,9 @@
 
 	let seedInUse = $seed;
 	//Pt details
-	let patientID = '';
 	let birthDateTime = formatDate(new Date().setMinutes(0, 0, 0));
-	let birthWeight = 3.5;
-	let gestationalAge_weeks = 40;
+	export let birthWeight = 3.5;
+	export let gestationalAge_weeks = 40;
 	let RDS = 0;
 	let MAS = 0;
 	let LOWAPG = 0;
@@ -57,7 +56,11 @@
 	function relayoutPlot(postSurgical) {
 		try {
 			setTimeout(function () {
-				Plotly.relayout('pct_plot', { responsive: true, autosize: true });
+				try {
+					Plotly.relayout('pct_plot', { responsive: true, autosize: true });
+				} catch (e) {
+					//console.log(e);
+				}
 			}, 500);
 		} catch (e) {}
 	}
@@ -262,9 +265,6 @@
 
 			console.log('doCalc rows = ', $rows);
 		} else {
-			console.log('No patient with ID:' + patientID);
-			patientID = 'baseline';
-			console.log('reset');
 			setPatientData();
 		}
 
@@ -498,7 +498,14 @@
 			margin: { l: 40, r: 20, t: 20, b: 40 }
 		};
 
-		Plotly.newPlot('pct_plot', [modelData, $points], layout, { responsive: true, autosize: true });
+		try {
+			Plotly.newPlot('pct_plot', [modelData, $points], layout, {
+				responsive: true,
+				autosize: true
+			});
+		} catch (e) {
+			//console.log(e);
+		}
 	}
 
 	function makeSeq(START, STOP, STEP) {
@@ -546,10 +553,14 @@
 			margin: { l: 40, r: 20, t: 20, b: 40 }
 		};
 
-		Plotly.newPlot('pct_plot', [traceP5, traceMedian, traceP95, $points], layout, {
-			responsive: true,
-			autosize: true
-		});
+		try {
+			Plotly.newPlot('pct_plot', [traceP5, traceMedian, traceP95, $points], layout, {
+				responsive: true,
+				autosize: true
+			});
+		} catch (e) {
+			//console.log(e);
+		}
 	}
 
 	function runModelAndUpdatePlot() {
@@ -709,7 +720,6 @@
 <div class="containers">
 	<div class="container" id="ptDataAndMeasures">
 		<h4>Patient details</h4>
-		<label>ID: <input type="text" bind:value={patientID} on:change={setPatientData} /> </label>
 		<label
 			>Birth time: <DateTimeSelect
 				label=""

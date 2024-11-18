@@ -1,5 +1,8 @@
 <script>
 	// @ts-nocheck
+	import { getFlash } from 'sveltekit-flash-message';
+	import { page } from '$app/stores';
+
 	import { createEventDispatcher } from 'svelte';
 	import { formatDate } from './dateHelpers';
 
@@ -7,11 +10,14 @@
 	export let label = 'Date and Time:';
 	export let dateonly = false;
 
+	const flash = getFlash(page);
+	let firstWarning = true;
 	let picker;
 	const dispatch = createEventDispatcher();
 
 	function showpicker() {
 		picker.showPicker();
+		firstWarning = true;
 	}
 
 	function handleInput(event) {
@@ -28,8 +34,9 @@
 		}
 		//Test for minutes - consider a warning here
 		const minutes = String(selectedDate.getMinutes()).padStart(2, '0');
-		if (minutes !== '00') {
-			console.log('Minutes cannot be entered');
+		if (minutes !== '00' && firstWarning) {
+			$flash = { type: 'error', message: 'Minutes cannot be entered; they will not be used.' };
+			firstWarning = false;
 		}
 		// Format in "YYYY-MM-DDTHH:00" to maintain timezone and minutes as 00
 		thedatetime = `${year}-${month}-${day}T${hours}:00`;
@@ -38,6 +45,7 @@
 	}
 </script>
 
+<div style="display:none" id="exit"></div>
 <div class="datetimeselect">
 	<label>{label}</label>
 	<span on:click={showpicker}>{formatDate(new Date(thedatetime), dateonly)}</span>

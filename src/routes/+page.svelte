@@ -2,14 +2,14 @@
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import { APP_NAME } from '$lib/config/constants';
+	import Model from '$lib/model/Model.svelte';
+	export let data: any;
+	$: user = data.user;
 </script>
 
 <svelte:head>
 	<title>{APP_NAME}</title>
-	<meta
-		name="description"
-		content="Sveltekit Auth Starter - An open source auth starter project utilizing lucia-auth, skeleton ui, prisma and sveltekit."
-	/>
+	<meta name="description" content="An app to run a PK model of Procalactin." />
 </svelte:head>
 
 <div class="flex-1">
@@ -41,10 +41,15 @@
 				>. It is released as open source under an MIT license. The source code is available on
 				<a href="https://github.com/delay/sveltekit-auth" class="underline">github</a>.
 			</p>
+			<p><a href="/auth/sign-up">Sign up</a></p>
 		</div>
 		<div class="flex gap-4">
 			<Button on:click={() => goto('/auth/sign-in')}>Sign in</Button>
 			<Button on:click={() => goto('/auth/sign-up')} variant="outline">Sign up</Button>
 		</div>
 	</section>
+	{#if user}
+		<p>{user.firstName}</p>
+	{/if}
+	<Model />
 </div>
