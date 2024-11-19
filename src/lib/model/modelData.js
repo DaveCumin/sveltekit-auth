@@ -76,62 +76,6 @@ export let globals = writable({
 	CL: []
 });
 
-function createCalculated() {
-	const { subscribe, set } = writable(themodel());
-
-	function themodel() {
-		const p = get(params);
-		const c = get(calculated);
-		const lp = get(localpvvs);
-
-		// the model equations
-		c.TM50 = p.POP_TM50 * Math.exp(lp.PPV_TM50);
-		c.Hill = parseInt(p.POP_HILL * Math.exp(lp.PPV_HILL));
-
-		c.FPREM = 1 / (1 + Math.pow(p.PMAW / c.TM50, -c.Hill));
-		c.F_STER_RIN = p.STER === 1 ? p.F_STER : 1;
-		c.F_RESP_SL = p.RESP >= 1 ? p.F_RESP : 1;
-		c.F_LOWAPG1_SL = p.LOWAPG1 === 1 ? p.F_LOWAPG1 : 1;
-
-		c.TELB = p.POP_TELB * Math.exp(lp.PPV_TELB) * Math.pow(p.WT / 70, 0.25);
-		c.KELB = Math.log(2) / c.TELB;
-		c.SLOPEBE = p.POP_SLOPEB * Math.exp(lp.PPV_SLOPEB) * c.F_RESP_SL * c.F_LOWAPG1_SL;
-		c.VB = 1;
-		c.MTT = p.POP_MTT * Math.exp(lp.PPV_MTT);
-		c.KTR = p.POP_NT / c.MTT;
-
-		c.TELS = p.POP_TELS * Math.exp(lp.PPV_TELS) * Math.pow(p.WT / 70, 0.25);
-		c.KELS = Math.log(2) / c.TELS;
-		c.SLOPES1 = p.POP_SLOPES1 * Math.exp(lp.PPV_SLOPES1);
-		c.SLOPEDSC = p.POP_SLOPEDSC * Math.exp(lp.PPV_SLOPEDSC);
-		c.VS = 1;
-
-		c.VC = p.POP_VC * (p.WT / 70);
-		c.CL = p.POP_CL * Math.exp(lp.PPV_CL) * c.FPREM * Math.pow(p.WT / 70, 0.75);
-		c.RATEIN_PCT =
-			p.POP_RATEIN * Math.exp(lp.PPV_RATEIN) * Math.pow(p.WT / 70, 0.75) * c.F_STER_RIN;
-
-		c.initialPCT = (c.RATEIN_PCT / c.CL) * c.VC;
-
-		calculated.set(c);
-	}
-	params.subscribe(() => {
-		set(themodel());
-	});
-	calclated.subscribe(() => {
-		set(themodel());
-	});
-	localpvvs.subscribe(() => {
-		set(themodel());
-	});
-	return {
-		subscribe,
-		run: () => set(themodel())
-	};
-}
-
-export const calculated = createCalculated();
-
 //PATIENT DATA FOR TESTING
 export let pts = writable({
 	baseline: {
