@@ -1,21 +1,30 @@
 <script>
-	export let showModal; // boolean
+	// @ts-nocheck
+	export let showModal = false; // boolean
 
 	let dialog; // HTMLDialogElement
 
-	$: if (dialog && showModal) dialog.showModal();
-	$: if (dialog && !showModal) dialog.close();
+	$: {
+		if (dialog) {
+			if (showModal && !dialog.open) {
+				dialog.showModal();
+			} else if (!showModal && dialog.open) {
+				dialog.close();
+			}
+		}
+	}
+
+	function handleClose() {
+		showModal = false;
+	}
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <dialog
+	class="rounded-lg border bg-card text-card-foreground shadow-sm z-50"
 	bind:this={dialog}
-	on:close={() => (showModal = false)}
+	on:close={handleClose}
 	on:click|self={() => dialog.close()}
 >
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<button autofocus on:click={() => dialog.close()}>x</button>
-
 	<div class="modalContents" on:click|stopPropagation>
 		<slot />
 	</div>
@@ -23,10 +32,7 @@
 
 <style>
 	dialog {
-		max-width: 60%;
-		border-radius: 0.5em;
-		border: none;
-		padding: 0;
+		width: 50%;
 	}
 	dialog::backdrop {
 		background: rgba(0, 0, 0, 0.5);
@@ -56,6 +62,7 @@
 			opacity: 1;
 		}
 	}
+
 	button {
 		position: absolute;
 		top: 2px;

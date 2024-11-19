@@ -28,7 +28,7 @@
 </script>
 
 <ModeWatcher />
-<Toaster richColors />
+<Toaster richColors class="z-999" />
 <div class="relative flex min-h-screen flex-col">
 	<Navigation {user} />
 	<div class="mt-8 md:mt-12">

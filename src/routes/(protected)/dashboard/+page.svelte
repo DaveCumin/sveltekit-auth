@@ -15,6 +15,5 @@
 		</p>
 		<p>Testing data = {JSON.stringify(data.patients)}</p>
 	</div>
+	<Model {...modelProps} />
 </section>
-
-<Model {...modelProps} />

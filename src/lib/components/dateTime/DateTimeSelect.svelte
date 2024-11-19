@@ -9,6 +9,8 @@
 	export let thedatetime;
 	export let label = 'Date and Time:';
 	export let dateonly = false;
+	export let minDate = '';
+	export let maxDate = '';
 
 	const flash = getFlash(page);
 	let firstWarning = true;
@@ -39,34 +41,46 @@
 			firstWarning = false;
 		}
 		// Format in "YYYY-MM-DDTHH:00" to maintain timezone and minutes as 00
-		thedatetime = `${year}-${month}-${day}T${hours}:00`;
+		if (dateonly) {
+			thedatetime = `${year}-${month}-${day}`;
+		} else {
+			thedatetime = `${year}-${month}-${day}T${hours}:00`;
+		}
 		// Dispatch the input event with the new value
 		dispatch('input', { value: thedatetime });
 	}
 </script>
 
-<div style="display:none" id="exit"></div>
-<div class="datetimeselect">
-	<label>{label}</label>
-	<span on:click={showpicker}>{formatDate(new Date(thedatetime), dateonly)}</span>
+<div class="datetimeselect h-10">
+	{#if label != ''}
+		<label>{label}</label>
+	{/if}
+	<span
+		on:click={showpicker}
+		class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-foreground file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+		>{formatDate(new Date(thedatetime), dateonly)}</span
+	>
 	{#if dateonly}
 		<input
-			bind:this={picker}
 			class="selection"
+			bind:this={picker}
 			type="date"
+			min={minDate}
+			max={maxDate}
 			bind:value={thedatetime}
 			on:input={handleInput}
 		/>
 	{:else}
 		<input
-			bind:this={picker}
 			class="selection"
+			bind:this={picker}
 			type="datetime-local"
+			min={minDate}
+			max={maxDate}
 			bind:value={thedatetime}
 			on:input={handleInput}
 		/>
 	{/if}
-	<span class="icon" on:click={showpicker}>🗓️</span>
 </div>
 
 <style>
@@ -81,9 +95,5 @@
 		position: relative;
 		left: 10px;
 		z-index: 0;
-	}
-	.icon {
-		position: relative;
-		cursor: pointer;
 	}
 </style>

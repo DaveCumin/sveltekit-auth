@@ -27,6 +27,10 @@
 					>Don't have an account yet? <a href="/auth/sign-up" class="underline">Sign up here.</a
 					></Card.Description
 				>
+				<Card.Description
+					>Don't want to store data? <a href="/" class="underline">Run the model here.</a
+					></Card.Description
+				>
 			</Card.Header>
 			<Card.Content class="grid gap-4">
 				{#if errors?._errors?.length}

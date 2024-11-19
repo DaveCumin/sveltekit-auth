@@ -2,7 +2,8 @@
 	// @ts-nocheck
 	import { onMount } from 'svelte';
 	import { writable, derived } from 'svelte/store';
-	import { fade, slide } from 'svelte/transition';
+	import { fade, slide, scale } from 'svelte/transition';
+	import { cubicInOut } from 'svelte/easing';
 	import { tick } from 'svelte';
 
 	import { quantile } from 'd3-array';
@@ -12,9 +13,31 @@
 	import { formatDate } from '$lib/components/dateTime/dateHelpers.js';
 	import Modal from '$lib/components/Modal.svelte';
 
+	import { userSchema } from '$lib/config/zod-schemas';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import { Button } from '$lib/components/ui/button';
+	import { Checkbox } from '$lib/components/ui/checkbox';
+	import * as Select from '$lib/components/ui/select';
+	import * as Card from '$lib/components/ui/card';
+	import * as Table from '$lib/components/ui/table';
+
 	import { params, pvvs, calculated, globals, pts, seed } from './modelData';
 
-	let plotElement;
+	const ageCategories = [
+		{ value: 'Neonate', label: 'Neonate' },
+		{ value: 'Infant', label: 'Infant' },
+		{ value: 'Child', label: 'Child' },
+		{ value: 'Adult', label: 'Adult' }
+	];
+	let ageCategory = '';
+
+	// Make sure the ages etc are appropriate when they are changed
+	$: checkAgeCatVars(ageCategory);
+	function checkAgeCatVars(ageCategory) {
+		console.log(ageCategory);
+	}
+
 	let output;
 
 	let setPVVs_0 = writable(false);
@@ -24,6 +47,7 @@
 		dt: 0.005
 	});
 	const numSimulations = 100;
+	let needToRerun = false;
 
 	// TODOs
 	// - database for pts; hashed NHI as input, and need a 'setter' for writing data as well as modify setPatientData() function (include an amorphos table for audit; https://ludwigstuyck.wordpress.com/2013/04/04/history-tracking/)
@@ -32,7 +56,6 @@
 	// - remove the PVV, 100 run, and 'download' UI elements => only allow the multisims (100x)
 	// - plot margins of error on the graph
 	// - option to plot as log or linear
-	// - consider NONMEM file read (from a mrgsolve or xpose file [the cpp one I have] or R object)
 
 	let seedInUse = $seed;
 	//Pt details
@@ -52,8 +75,8 @@
 	$: PMAW_S = gestationalAge_weeks + Time_Surg / 7;
 
 	$: relayoutPlot(postSurgical);
-
 	function relayoutPlot(postSurgical) {
+		console.log('relayout');
 		try {
 			setTimeout(function () {
 				try {
@@ -205,6 +228,7 @@
 				const dWT = $rows[r].WT - $params.WT;
 				const dWTt = $rows[r].TIME - t;
 				$params.WT += (dWT / dWTt) * $modelParams.dt;
+				console.log('t ', t, '; dWT: ', dWT, '; dWTt: ', dWTt, '; wt: ', $params.WT);
 			}
 		}
 
@@ -247,7 +271,9 @@
 				//postSurgical
 				postSurgical = $pts[patientID].postSurgical || 0;
 				//surgeryDate
-				surgeryDate = new Date($pts[patientID].surgeryDate) || new Date().setMinutes(0, 0, 0);
+				surgeryDate =
+					new Date($pts[patientID].surgeryDate).setMinutes(0, 0, 0) ||
+					new Date().setMinutes(0, 0, 0);
 				//surgeryDuration
 				surgeryDuration = $pts[patientID].surgeryDuration || 2;
 				//surgerySteroids
@@ -272,6 +298,7 @@
 	}
 
 	function runModel() {
+		//needToRerun = true;
 		if ($setPVVs_0) {
 			//Make the pvvs 0
 			Object.entries($localpvvs).forEach(([key, value]) => {
@@ -659,50 +686,37 @@
 </script>
 
 <Modal bind:showModal={showAddAnnotationDialog}>
-	<div class="container" style="width:100%;">
-		<label
-			>Date of measurement: <DateTimeSelect
-				label=""
-				bind:thedatetime={temp_measurementDate}
-			/></label
-		>
+	<div class="grid w-full max-w-sm items-center gap-1.5">
+		{formatDate(new Date(birthDateTime), false, 'other')}
+		<Label>Date of measurement:</Label>
+		<DateTimeSelect
+			label=""
+			minDate={formatDate(new Date(birthDateTime), false, 'other')}
+			bind:thedatetime={temp_measurementDate}
+		/>
 
-		<label
-			>Measured concentration: <input
-				type="number"
-				min="0.1"
-				max="10"
-				step="0.1"
-				bind:value={temp_measurementConc}
-			/></label
-		>
+		<Label for="measuredconc">Measured concentration:</Label>
+		<Input type="number" min="0.1" max="10" step="0.1" bind:value={temp_measurementConc} />
 
-		<label
-			>Weight: <input
-				type="number"
-				min="0.1"
-				max="10"
-				step="0.1"
-				bind:value={temp_measurementWeight}
-			/></label
-		>
-	</div>
-	<div style="flex: 1; width:100%; border:none;">
-		<button
-			style="color: darkgreen; cursor: pointer; font-weight:900;"
-			on:click={() => {
-				addMeasurement(temp_measurementDate, temp_measurementConc, temp_measurementWeight);
-				runModelAndUpdatePlot();
-				showAddAnnotationDialog = false;
-			}}>Add</button
-		>
-		<button
-			style="color: red; cursor: pointer; font-weight:900;"
-			on:click={() => {
-				showAddAnnotationDialog = false;
-				console.log(showAddAnnotationDialog);
-			}}>Cancel</button
-		>
+		<Label for="measuredconc">Weight:</Label>
+		<Input type="number" min="0.1" max="10" step="0.1" bind:value={temp_measurementWeight} />
+
+		<div class="flex justify-end space-x-2">
+			<Button
+				variant="ghost"
+				on:click={() => {
+					showAddAnnotationDialog = false;
+					console.log(showAddAnnotationDialog);
+				}}>Cancel</Button
+			>
+			<Button
+				on:click={() => {
+					addMeasurement(temp_measurementDate, temp_measurementConc, temp_measurementWeight);
+					runModelAndUpdatePlot();
+					showAddAnnotationDialog = false;
+				}}>Add</Button
+			>
+		</div>
 	</div>
 </Modal>
 
@@ -717,73 +731,189 @@
 	</p>
 </div>
 
-<div class="containers">
-	<div class="container" id="ptDataAndMeasures">
-		<h4>Patient details</h4>
-		<label
-			>Birth time: <DateTimeSelect
-				label=""
-				bind:thedatetime={birthDateTime}
-				on:input={runModelAndUpdatePlot}
-			/>
-		</label>
-		<label>
-			Birth weight (kg):
-			<input
-				type="number"
-				min="0.1"
-				max="10"
-				step="0.1"
-				bind:value={birthWeight}
-				on:change={runModelAndUpdatePlot}
-			/>
-		</label>
-		<label>
-			Gestational age (weeks):
-			<input
-				type="number"
-				min="20"
-				max="45"
-				step="1"
-				bind:value={gestationalAge_weeks}
-				on:change={runModelAndUpdatePlot}
-			/>
-		</label>
-		<label
-			>Respiratory Distress Syndrome:
-			<input type="checkbox" on:input={() => (RDS = !RDS * 1)} on:change={runModelAndUpdatePlot} />
-		</label>
-		<label
-			>Meconium Aspiration Syndrome:
-			<input type="checkbox" on:input={() => (MAS = !MAS * 1)} on:change={runModelAndUpdatePlot} />
-		</label>
-		<label
-			>{'APGAR 1 Minute < 7:'}
-			<input
-				type="checkbox"
-				on:input={() => (LOWAPG = !LOWAPG * 1)}
-				on:change={runModelAndUpdatePlot}
-			/>
-		</label>
-		<label
-			>Post-surgical patient:<input
-				type="checkbox"
-				bind:checked={postSurgical}
-				on:change={runModelAndUpdatePlot}
-			/></label
-		>
-		{#if postSurgical}
-			<div id="surgeryData" transition:slide>
-				<label
-					>Surgery time:<DateTimeSelect
+<div class="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>Patient details</Card.Title>
+			<Card.Description>Enter the patient details below.</Card.Description>
+		</Card.Header>
+		<Card.Content>
+			<Label>Age category:</Label>
+			<Select.Root
+				onSelectedChange={(v) => {
+					ageCategory = v.value;
+				}}
+			>
+				<Select.Trigger class="w-full">
+					<Select.Value placeholder="Select an age category" />
+				</Select.Trigger>
+
+				<Select.Content>
+					<Select.Group>
+						{#each ageCategories as ac}
+							<Select.Item value={ac.value} label={ac.label}>{ac.label}</Select.Item>
+						{/each}
+					</Select.Group>
+				</Select.Content>
+				<Select.Input name="ageCategory" />
+			</Select.Root>
+			{#key ageCategory}
+				{#if ageCategory == 'Neonate'}
+					<div transition:fade|global={{ easing: cubicInOut }}>
+						<Label for="birthdate">Birth time:</Label>
+						<DateTimeSelect
+							label=""
+							bind:thedatetime={birthDateTime}
+							on:input={runModelAndUpdatePlot}
+						/>
+
+						<Label for="ga">Gestational age (weeks):</Label>
+						<Input
+							type="number"
+							min="20"
+							max="45"
+							step="1"
+							bind:value={gestationalAge_weeks}
+							on:change={runModelAndUpdatePlot}
+						/>
+
+						<Label for="birthwt">Birth weight (kg):</Label>
+						<Input
+							type="number"
+							min="0.1"
+							max="10"
+							step="0.1"
+							bind:value={birthWeight}
+							on:change={runModelAndUpdatePlot}
+						/>
+
+						<div class="flex items-center my-2 mr-2">
+							<Checkbox
+								class="mr-2"
+								bind:checked={RDS}
+								onCheckedChange={(v) => {
+									RDS = !RDS * 1;
+									runModelAndUpdatePlot();
+								}}
+							/>
+							<Label>Respiratory Distress Syndrome</Label>
+						</div>
+						<div class="flex items-center my-2 mr-2">
+							<Checkbox
+								class="mr-2"
+								bind:checked={MAS}
+								onCheckedChange={(v) => {
+									MAS = !MAS * 1;
+									runModelAndUpdatePlot();
+								}}
+							/>
+							<Label>Meconium Aspiration Syndrome</Label>
+						</div>
+						<div class="flex items-center my-2 mr-2">
+							<Checkbox
+								class="mr-2"
+								bind:checked={LOWAPG}
+								onCheckedChange={(v) => {
+									LOWAPG = !LOWAPG * 1;
+									runModelAndUpdatePlot();
+								}}
+							/>
+							<Label>{`APGAR 1 Minute < 7`}</Label>
+						</div>
+					</div>
+				{:else if ageCategory == 'Infant'}
+					<div transition:fade|global={{ easing: cubicInOut }}>
+						<Label for="birthdate">Birth date:</Label>
+						<DateTimeSelect
+							label=""
+							dateonly="true"
+							bind:thedatetime={birthDateTime}
+							on:input={runModelAndUpdatePlot}
+						/>
+
+						<Label for="ga">Gestational age (weeks):</Label>
+						<Input
+							type="number"
+							min="20"
+							max="45"
+							step="1"
+							bind:value={gestationalAge_weeks}
+							on:change={runModelAndUpdatePlot}
+						/>
+
+						<Label for="birthwt">Current weight (kg):</Label>
+						<Input
+							type="number"
+							min="0.1"
+							max="10"
+							step="0.1"
+							bind:value={birthWeight}
+							on:change={runModelAndUpdatePlot}
+						/>
+					</div>
+				{:else if ageCategory == 'Child'}
+					<div transition:fade|global={{ easing: cubicInOut }}>
+						<Label for="birthwt">Current weight (kg):</Label>
+						<Input
+							type="number"
+							min="0.1"
+							max="10"
+							step="0.1"
+							bind:value={birthWeight}
+							on:change={runModelAndUpdatePlot}
+						/>
+					</div>
+				{:else if ageCategory == 'Adult'}
+					<div transition:fade|global={{ easing: cubicInOut }}>
+						<Label for="birthwt">Current weight (kg):</Label>
+						<Input
+							type="number"
+							min="0.1"
+							max="10"
+							step="0.1"
+							bind:value={birthWeight}
+							on:change={runModelAndUpdatePlot}
+						/>
+					</div>
+				{:else}
+					<div transition:fade|global={{ easing: cubicInOut }}>
+						<p class="text-sm text-muted-foreground">Start by selecting an age category, above.</p>
+					</div>
+				{/if}
+			{/key}
+		</Card.Content>
+	</Card.Root>
+
+	<!-- Surgical details -->
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>Surgical details</Card.Title>
+			<Card.Description>Enter the surgery details below.</Card.Description>
+		</Card.Header>
+		<Card.Content>
+			<div class="flex items-center my-2 mr-2">
+				<Checkbox
+					class="mr-2"
+					bind:checked={postSurgical}
+					onCheckedChange={(v) => {
+						postSurgical = !postSurgical;
+						runModelAndUpdatePlot();
+					}}
+				/>
+				<Label>Post-surgical patient</Label>
+			</div>
+			{#if postSurgical}
+				<div id="" transition:slide>
+					<Label for="surgDate">Surgery time:</Label>
+					<DateTimeSelect
 						label=""
+						minDate={birthDateTime}
 						bind:thedatetime={surgeryDate}
 						on:input={runModelAndUpdatePlot}
 					/>
-				</label>
-				<label
-					>Surgery duration (hours):
-					<input
+
+					<Label for="surgDuration">Surgery duration (hours):</Label>
+					<Input
 						type="number"
 						min="1"
 						max="24"
@@ -791,18 +921,21 @@
 						bind:value={surgeryDuration}
 						on:change={runModelAndUpdatePlot}
 					/>
-				</label>
-				<label
-					>Pre-surgical Steroids:
-					<input
-						type="checkbox"
-						on:input={() => (surgerySteroids = !surgerySteroids * 1)}
-						on:change={runModelAndUpdatePlot}
-					/>
-				</label>
-				<label
-					>Weight at surgery (kg):
-					<input
+
+					<div class="flex items-center my-2 mr-2">
+						<Checkbox
+							class="mr-2"
+							bind:checked={MAS}
+							onCheckedChange={(v) => {
+								surgerySteroids = !surgerySteroids * 1;
+								runModelAndUpdatePlot();
+							}}
+						/>
+						<Label>Pre-surgical steroids</Label>
+					</div>
+
+					<Label for="surgwt">Weight at surgery (kg):</Label>
+					<Input
 						type="number"
 						min="0.1"
 						max="10"
@@ -810,26 +943,32 @@
 						bind:value={surgeryWeight}
 						on:change={runModelAndUpdatePlot}
 					/>
-				</label>
-			</div>
-		{/if}
+				</div>
+			{/if}
+		</Card.Content>
+	</Card.Root>
 
-		<h4>Measurements</h4>
-		<table>
-			<thead>
-				<tr>
-					<th>Date</th>
-					<th>PCT (mcg/L)</th>
-					<th>Weight (kg)</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#if measurements.length > 0}
+	<!-- MEASUREMENTS -->
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>Measurements</Card.Title>
+			<Card.Description>Enter measures below.</Card.Description>
+		</Card.Header>
+		<Card.Content>
+			<Table.Root>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head class="w-[160px]">Time</Table.Head>
+						<Table.Head>PCT (mcg/L)</Table.Head>
+						<Table.Head>Weight (kg)</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
 					{#each measurements as measurement, idx}
-						<tr>
-							<td class="time">{formatDate(measurement.time)}</td>
-							<td class="conc">{measurement.conc}</td>
-							<td class="weight"
+						<Table.Row>
+							<Table.Cell>{formatDate(measurement.time)}</Table.Cell>
+							<Table.Cell>{measurement.conc}</Table.Cell>
+							<Table.Cell
 								>{measurement.weight}
 								<span
 									style="float: right;"
@@ -837,23 +976,49 @@
 										removeMeasurement(idx);
 										runModelAndUpdatePlot();
 									}}><a style="color: red; cursor: pointer">🗑️</a></span
-								></td
+								></Table.Cell
 							>
-						</tr>
+						</Table.Row>
 					{/each}
-				{/if}
-				<tr
-					style="cursor: pointer; "
-					on:click={() => {
-						showAddAnnotationDialog = true;
-					}}>Add a measurement: <button style="color: darkgreen; font-weight:900;">+</button></tr
-				>
-			</tbody>
-		</table>
-	</div>
+				</Table.Body>
+			</Table.Root>
+			<Button
+				class="mt-4"
+				on:click={() => {
+					showAddAnnotationDialog = true;
+				}}>Add a measurement</Button
+			>
+		</Card.Content>
+	</Card.Root>
+</div>
 
-	<!-- THE PLOT -->
-	<div class="container" id="pct_plot" bind:this={plotElement} style="width: 100%;"></div>
+<!-- THE PLOT -->
+{#if needToRerun}
+	<div class="container" style="width: 100%; height: 500px;">
+		<p>Need to rerun the model as things have changed</p>
+		<Button
+			on:click={() => {
+				console.log('running here');
+				needToRerun = false;
+				relayoutPlot(postSurgical);
+			}}>Run</Button
+		>
+	</div>
+{/if}
+
+<div class="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>Model result and measurements</Card.Title>
+		</Card.Header>
+		<Card.Content>
+			<div
+				class="container"
+				id="pct_plot"
+				style={`width: 100%; height: 500px; display: ${needToRerun ? 'none' : 'block'}`}
+			></div>
+		</Card.Content>
+	</Card.Root>
 </div>
 
 <div class="container" id="modelcontrols">
