@@ -34,3 +34,13 @@ const Months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 function padTo2Digits(num) {
 	return num.toString().padStart(2, '0');
 }
+
+//helper function to get the difference between two dates, in days
+export function getDaysDiff(date1, date2) {
+	date1 = new Date(date1);
+	date2 = new Date(date2);
+	const millisecondsDiff = date2.getTime() - date1.getTime();
+
+	const daysDiff = millisecondsDiff / (24 * 60 * 60 * 1000);
+	return daysDiff;
+}

@@ -2,6 +2,29 @@ import { writable } from 'svelte/store';
 
 export let seed = writable(8336);
 
+export let inputs = writable({
+	ageCategory: 'Neonate',
+	birthDateTime: new Date().setMinutes(0, 0, 0),
+	birthWeight: 3.5,
+	gestationalAge_weeks: 40,
+	RDS: 0,
+	MAS: 0,
+	LOWAPG: 0,
+	postSurgical: 0,
+	surgeryDate: new Date().setMinutes(0, 0, 0),
+	surgeryDuration: 2,
+	surgerySteroids: 0,
+	surgeryWeight: 3.5,
+	measurements: []
+});
+
+export let ageCategories = writable([
+	{ value: 'Neonate', label: 'Neonate' },
+	{ value: 'Infant', label: 'Infant' },
+	{ value: 'Child', label: 'Child' },
+	{ value: 'Adult', label: 'Adult' }
+]);
+
 export let params = writable({
 	POP_RATEIN: 4.01,
 	POP_CL: 44.2,
@@ -74,8 +97,12 @@ export let globals = writable({
 	CL: []
 });
 
+//Additions (rows)
+export let rows = writable([{ TIME: 0, AMT: 2 / 24, RATE: 1, CMT: 1 }]);
+
 export let pts = writable({
 	baseline: {
+		ageCategory: 'Neonate',
 		birthDateTime: '2022-05-01T17:44',
 		birthWeight: 3.5,
 		gestationalAge_weeks: 40,
@@ -83,9 +110,10 @@ export let pts = writable({
 		MAS: 0,
 		LOWAPG: 0,
 		postSurgical: 0,
-		measurements: {}
+		measurements: []
 	},
 	a: {
+		ageCategory: 'Neonate',
 		birthDateTime: '2022-05-01T17:44',
 		birthWeight: 2.5,
 		gestationalAge_weeks: 40,
@@ -93,11 +121,33 @@ export let pts = writable({
 		MAS: 1,
 		LOWAPG: 1,
 		postSurgical: 0,
-		measurements: {}
+		measurements: []
 	},
 	b: {
+		ageCategory: 'Neonate',
 		birthDateTime: '2023-01-11T08:12',
 		birthWeight: 4.5,
+		gestationalAge_weeks: 40,
+		RDS: 1,
+		MAS: 0,
+		LOWAPG: 0,
+		postSurgical: 1,
+		surgeryDate: '2023-01-12T09:42',
+		surgeryDuration: 2,
+		surgerySteroids: 0,
+		weight: 5.5,
+		measurements: [
+			{
+				time: '2023-01-13T22:41:40',
+				conc: 0.1,
+				weight: 5.5
+			}
+		]
+	},
+	c: {
+		ageCategory: 'Adult',
+		birthDateTime: '1987-06-05T12:14',
+		birthWeight: 14.5,
 		gestationalAge_weeks: 40,
 		RDS: 1,
 		MAS: 0,

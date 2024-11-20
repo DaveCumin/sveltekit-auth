@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-node'; //https://medium.com/@hmd_79918/sveltekit-deployment-on-cpanel-in-shared-host-5c86a1dc67fc
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
