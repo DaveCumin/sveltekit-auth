@@ -22,7 +22,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 
-	import { params, pvvs, calculated, globals, pts, seed, calculated_new } from './modelData';
+	import { params, pvvs, calculated, globals, pts, seed } from './modelData';
 
 	const ageCategories = [
 		{ value: 'Neonate', label: 'Neonate' },
@@ -590,24 +590,7 @@
 	}
 
 	function runModelAndUpdatePlot() {
-		if (postSurgical) {
-			const Time_Surg = getDaysDiff(birthDateTime, surgeryDate);
-			$rows.push({
-				TIME: Time_Surg,
-				AMT: surgeryDuration / 24,
-				RATE: 1,
-				CMT: 2,
-				WT: surgeryWeight
-			});
-			$params.STER = surgerySteroids;
-		}
-
-		params.update(($params) => {
-			$params.WT = birthWeight;
-			return $params;
-		});
-
-		//runModel();
+		runModel();
 		updateplot($globals.t, $globals.CONCPCT);
 	}
 
