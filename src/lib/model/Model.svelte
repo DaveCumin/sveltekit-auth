@@ -22,7 +22,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 
-	import { params, pvvs, calculated, globals, pts, seed } from './modelData';
+	import { params, pvvs, calculated, globals, pts, seed, calculated_new } from './modelData';
 
 	const ageCategories = [
 		{ value: 'Neonate', label: 'Neonate' },
@@ -35,7 +35,7 @@
 	// Make sure the ages etc are appropriate when they are changed
 	$: checkAgeCatVars(ageCategory);
 	function checkAgeCatVars(ageCategory) {
-		console.log(ageCategory);
+		console.log(ageCategory, ': need to check for parameters here.');
 	}
 
 	let output;
@@ -76,7 +76,6 @@
 
 	$: relayoutPlot(postSurgical);
 	function relayoutPlot(postSurgical) {
-		console.log('relayout');
 		try {
 			setTimeout(function () {
 				try {
@@ -209,7 +208,7 @@
 			dy[i] = $calculated.KTR * y[i - 1] - $calculated.KTR * y[i]; //Transit3-Transit20
 		}
 
-		//Do the additions (ROWS) : TODO, this needs updating
+		//Do the additions (ROWS)
 		for (let r = 0; r < $rows.length; r++) {
 			// If the time is correct
 			if (
@@ -591,8 +590,24 @@
 	}
 
 	function runModelAndUpdatePlot() {
-		runModel();
+		if (postSurgical) {
+			const Time_Surg = getDaysDiff(birthDateTime, surgeryDate);
+			$rows.push({
+				TIME: Time_Surg,
+				AMT: surgeryDuration / 24,
+				RATE: 1,
+				CMT: 2,
+				WT: surgeryWeight
+			});
+			$params.STER = surgerySteroids;
+		}
 
+		params.update(($params) => {
+			$params.WT = birthWeight;
+			return $params;
+		});
+
+		//runModel();
 		updateplot($globals.t, $globals.CONCPCT);
 	}
 
@@ -903,7 +918,7 @@
 				<Label>Post-surgical patient</Label>
 			</div>
 			{#if postSurgical}
-				<div id="" transition:slide>
+				<div id="" transition:slide|global>
 					<Label for="surgDate">Surgery time:</Label>
 					<DateTimeSelect
 						label=""
