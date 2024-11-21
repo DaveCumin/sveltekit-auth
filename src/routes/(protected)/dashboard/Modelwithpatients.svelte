@@ -4,14 +4,16 @@
 	import ModelPlot from '$lib/model/ModelPlot.svelte';
 	import ModelInputs from '$lib/model/ModelInputs.svelte';
 
-	import { inputs, pts, rows } from '$lib/model/modelData';
+	import { inputs, pts, rows, forceRun } from '$lib/model/modelData';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
 
 	export let userpts = {};
 
 	let patientID = 'a';
 
 	async function setPatientData() {
-		$rows = [{ TIME: 0, AMT: 2 / 24, RATE: 1, CMT: 1 }];
 		if (Object.keys($pts).includes(patientID)) {
 			for (const [key, value] of Object.entries($pts[patientID])) {
 				$inputs.ageCategory = $pts[patientID].ageCategory || 'Neonate';
@@ -41,16 +43,52 @@
 				//surgeryWeight
 				$inputs.surgeryWeight = $pts[patientID].weight || 3.5;
 			}
-			//ADD in the measurements (need to update the store also)
+			//Add in the measurements (need to update the store also)
 			$inputs.measurements = $pts[patientID].measurements || [];
+
+			//run the model
+			//$forceRun = true;
 		} else {
-			setPatientData();
+			console.log('no pt with that nhi');
 		}
+	}
+
+	function savePtData() {
+		//save/insert the pt data into the database
+		$pts[patientID] = {
+			ageCategory: $inputs.ageCategory,
+			birthDateTime: $inputs.birthDateTime,
+			birthWeight: $inputs.birthWeight,
+			gestationalAge_weeks: $inputs.gestationalAge_weeks,
+			RDS: $inputs.RDS,
+			MAS: $inputs.MAS,
+			LOWAPG: $inputs.LOWAPG,
+			postSurgical: $inputs.postSurgical,
+			surgeryDate: $inputs.surgeryDate,
+			surgeryDuration: $inputs.surgeryDuration,
+			surgerySteroids: $inputs.surgerySteroids,
+			weight: $inputs.weight,
+			measurements: $inputs.measurements
+		};
+	}
+
+	$: runfromstoreupdate($inputs);
+	function runfromstoreupdate(inputs) {
+		console.log('doing stuff in here');
 	}
 </script>
 
 <div class="container grid items-center gap-6">
-	<input type="text" bind:value={patientID} on:change={setPatientData} />
-	<ModelInputs />
+	<ModelInputs>
+		<div slot="PtID">
+			<Label>Patient NHI</Label>
+			<div class="flex items-center space-x-2">
+				<Input type="text" bind:value={patientID} />
+
+				<Button on:click={setPatientData}>Load patient data</Button>
+			</div>
+		</div>
+	</ModelInputs>
+	<Button on:click={savePtData}>Save data for this patient</Button>
 	<ModelPlot />
 </div>

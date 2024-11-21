@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 
 export let seed = writable(8336);
-
+export let forceRun = writable(false);
 export let inputs = writable({
 	ageCategory: 'Neonate',
 	birthDateTime: new Date().setMinutes(0, 0, 0),

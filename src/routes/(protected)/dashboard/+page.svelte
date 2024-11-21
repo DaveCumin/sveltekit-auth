@@ -9,7 +9,8 @@
 			Welcome {data.user.firstName}
 		</h1>
 		<p class="max-w-[700px] text-lg text-muted-foreground">
-			You can run models for your patients by entering their NHI below.
+			You can run models for your patients by entering their NHI below and clicking on "Load". To
+			save the data, click the "Save" button.
 		</p>
 	</div>
 </section>

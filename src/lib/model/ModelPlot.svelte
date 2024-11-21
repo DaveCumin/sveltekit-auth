@@ -30,7 +30,17 @@
 	import * as Table from '$lib/components/ui/table';
 	import { Progress } from '$lib/components/ui/progress';
 
-	import { params, pvvs, calculated, globals, rows, pts, seed, inputs } from './modelData';
+	import {
+		params,
+		pvvs,
+		calculated,
+		globals,
+		rows,
+		pts,
+		seed,
+		inputs,
+		forceRun
+	} from './modelData';
 
 	let seedInUse = $seed;
 	let output;
@@ -54,6 +64,10 @@
 	$: runfromstoreupdate($inputs);
 	function runfromstoreupdate(inputs) {
 		modelstatus = 'needToRun';
+	}
+	$: doForceRun($forceRun);
+	function doForceRun(force) {
+		dothebusiness();
 	}
 
 	// Create stores for params and pvvs
@@ -374,6 +388,11 @@
 	}
 
 	async function dothebusiness() {
+		if (typeof Plotly === 'undefined') {
+			//massive error if plotly is undefined
+			console.error('Plotly not defined');
+			return;
+		}
 		modelstatus = 'running';
 		await tick();
 		await new Promise((resolve) => setTimeout(resolve, 0)); // Yield control to the event loop
@@ -434,7 +453,6 @@
 			ts: makeSeq($modelParams.timeStart, $modelParams.timeEnd, $modelParams.dt),
 			percentiles: percentiles
 		};
-		console.log(output);
 
 		plotPercentiles(percentiles);
 		const endTime = performance.now();

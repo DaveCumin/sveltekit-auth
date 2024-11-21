@@ -107,17 +107,6 @@
 	</div>
 </Modal>
 
-<div>
-	<p class="max-w-[100%] text-lg text-muted-foreground">
-		This tool provides predictions of procalcitonin (PCT) concentations in non-infected neonates,
-		infants and adults. The user should enter patient factors to see predicted PCT concentrations in
-		non-infected individuals. Observed PCT concentrations can be entered and will be plotted
-		alongside the reference range. If observed PCT concentrations are outside the reference range
-		the patient has a suspected infection. Definitions: Neonate: &lt; 30 days old, Infant: 1 month -
-		2 years of age, Child: 2 - 18 years old, Adult: &gt; 18 years old
-	</p>
-</div>
-
 <div class="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
 	<Card.Root>
 		<Card.Header>
@@ -125,6 +114,7 @@
 			<Card.Description>Enter the patient details below.</Card.Description>
 		</Card.Header>
 		<Card.Content>
+			<slot name="PtID"></slot>
 			<Label>Age category:</Label>
 			<Select.Root
 				onSelectedChange={(v) => {
