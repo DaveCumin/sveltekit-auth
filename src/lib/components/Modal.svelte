@@ -21,6 +21,7 @@
 
 <dialog
 	class="rounded-lg border bg-card text-card-foreground shadow-sm z-50"
+	style="width:90%;"
 	bind:this={dialog}
 	on:close={handleClose}
 	on:click|self={() => dialog.close()}
@@ -80,7 +81,7 @@
 	}
 	.modalContents {
 		margin: 14px auto; /* Center horizontally */
-		width: 90%;
+		width: 80%;
 		display: flex;
 		justify-content: center; /* Center horizontally */
 		align-items: center; /* Center vertically */

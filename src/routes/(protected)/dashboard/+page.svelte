@@ -14,4 +14,6 @@
 		</p>
 	</div>
 </section>
-<Modelwithpatients userpts={data.patients} />
+<div class="container grid items-center gap-6 grid-cols-1">
+	<Modelwithpatients userpts={data.patients} />
+</div>

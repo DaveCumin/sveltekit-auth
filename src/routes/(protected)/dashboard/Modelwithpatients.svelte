@@ -78,17 +78,15 @@
 	}
 </script>
 
-<div class="container grid items-center gap-6">
-	<ModelInputs>
-		<div slot="PtID">
-			<Label>Patient NHI</Label>
-			<div class="flex items-center space-x-2">
-				<Input type="text" bind:value={patientID} />
+<ModelInputs>
+	<div slot="PtID">
+		<Label>Patient NHI</Label>
+		<div class="flex items-center space-x-2">
+			<Input type="text" bind:value={patientID} />
 
-				<Button on:click={setPatientData}>Load patient data</Button>
-			</div>
+			<Button on:click={setPatientData}>Load patient data</Button>
 		</div>
-	</ModelInputs>
-	<Button on:click={savePtData}>Save data for this patient</Button>
-	<ModelPlot />
-</div>
+	</div>
+</ModelInputs>
+<Button on:click={savePtData}>Save data for this patient</Button>
+<ModelPlot />

@@ -33,7 +33,8 @@
 			- 2 years of age, Child: 2 - 18 years old, Adult: &gt; 18 years old
 		</p>
 	</div>
-
-	<ModelInputs />
-	<ModelPlot />
+	<div class="container grid items-center gap-6 grid-cols-1">
+		<ModelInputs />
+		<ModelPlot />
+	</div>
 </div>
